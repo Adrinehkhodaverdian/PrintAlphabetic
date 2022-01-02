@@ -1,0 +1,56 @@
+;Adrineh Khodaverdina
+;Tony Biehl
+;CS/IS 165
+;Lab 6 part 2
+section .text
+
+global _start
+_start:
+    mov     ecx, msg  
+    mov     edx, len  ; 
+    mov     ebx, 1    ;
+    mov     eax, 4
+    int     0x80      ; linux command, NOT NASM!
+  
+	mov eax,3	; system call number (sys_read)
+	mov ebx,0	; file descriptor (stdin)
+	mov ecx, sent	; where to put the characters
+	mov edx, slen	; how many characters to input
+	int 0x80
+
+    mov  ebx, sent  ; address of the input
+while:
+    mov     al,[ebx]   ; get a character
+    cmp     al,0   ;end of input?
+    je      endW
+    mov     al,[ebx]   ; get a character
+    cmp     al, 'a'    ; is it an 'a'?
+    jl      skip
+    cmp     al, 'z'    ; is it an 'z'?
+    jg      skip
+    and     al,0xDF       ; move AL upper case and
+    mov     [ebx],al      ; write it back to string
+skip:
+    add     ebx, 1      ;add one to index
+    jmp     while
+endW:
+    mov     ecx, sent
+    mov     edx, slen    
+    mov     ebx, 1
+    mov     eax, 4     ; print alphabetic or skip 
+    int     0x80
+    
+    mov     ebx,0
+    mov     eax, 1
+    int     0x80
+
+section .data
+    space db ' '
+    msg db  "Enter sentence "
+    len equ $ - msg
+
+    
+segment .bss
+    slen equ 20
+    sent resb slen
+    sum resb 1
